@@ -5,11 +5,15 @@ use InvalidArgumentException;
 use Nyrados\Translator\Helper;
 use Nyrados\Translator\TranslatorApi;
 
-final class LanguageDecorator extends SimpleLanguage
+class Language
 {
+    protected $country;
+
+    protected $region;
+
     public function __construct($language)
     {
-        if ($language instanceof LanguageInterface) {
+        if ($language instanceof self) {
             $this->region = $language->getRegion();
             $this->country = $language->getCountry();
         } else if (is_string($language) || is_object($language) && method_exists($language, '__toSting') ) {
@@ -27,6 +31,24 @@ final class LanguageDecorator extends SimpleLanguage
         }
     }
 
+    public function getCountry(): string
+    {
+        return $this->country;
+    }
+
+    public function getRegion(): string
+    {
+        return $this->region;
+    }
+
+    public function withRegion(string $region)
+    {
+        $new = clone $this;
+        $new->region = $region;
+        
+        return $new;
+    }
+
     public function __toString()
     {
         return $this->getId();
@@ -34,7 +56,7 @@ final class LanguageDecorator extends SimpleLanguage
 
     public function getId()
     {
-        return Helper::languageToString($this);
+        return $this->getCountry() . '-'. $this->getRegion();
     }
 
     public function isRegionSame(): bool
