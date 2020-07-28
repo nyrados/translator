@@ -1,0 +1,10 @@
+{
+    "name": "nyrados/translation-api",
+    "type": "libary",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Nyrados\\Translation\\": "src/"
+        }
+    }
+}
