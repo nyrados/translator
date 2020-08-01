@@ -1,5 +1,5 @@
 {
-    "name": "nyrados/translation-api",
+    "name": "nyrados/translator",
     "description": "Translation Api to localize webpages",
     "version": "0.1",
     "type": "libary",
