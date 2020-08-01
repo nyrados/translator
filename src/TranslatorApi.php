@@ -133,10 +133,10 @@ class TranslatorApi
             $this->preferences[] = $language;
 
             if (
-                !in_array($language->getCountry(), $preferences) &&
-                !in_array($language->withRegion($language->getCountry()) , $preferences) 
+                !in_array($language->getCode(), $preferences) &&
+                !in_array($language->withRegion($language->getCode()) , $preferences) 
             ) { 
-                $this->preferences[] = $language->withRegion($language->getCountry());
+                $this->preferences[] = $language->withRegion($language->getCode());
             }
         }
 

@@ -6,7 +6,7 @@ use Nyrados\Translator\TranslatorApi;
 
 class Language
 {
-    protected $country;
+    protected $code;
 
     protected $region;
 
@@ -19,7 +19,7 @@ class Language
     {
         if ($language instanceof self) {
             $this->region = $language->getRegion();
-            $this->country = $language->getCountry();
+            $this->code = $language->getCode();
         } else if (is_string($language) || is_object($language) && method_exists($language, '__toSting') ) {
 
             $string = strtolower((string) $language);
@@ -28,17 +28,17 @@ class Language
                 throw new InvalidArgumentException(sprintf("Invalid Language String! Unable to parse '%s'", $language));
             }
 
-            $this->country = $output['country']; 
-            $this->region  = isset($output['region']) ? $output['region'] : $output['country'];
+            $this->code = $output['code']; 
+            $this->region  = isset($output['region']) ? $output['region'] : $output['code'];
 
         } else {
             throw new InvalidArgumentException ("Language must be an instance of '" . LanguageInterface::class . "' or a string");
         }
     }
 
-    public function getCountry(): string
+    public function getCode(): string
     {
-        return $this->country;
+        return $this->code;
     }
 
     public function getRegion(): string
@@ -61,11 +61,11 @@ class Language
 
     public function getId()
     {
-        return $this->getCountry() . '-'. $this->getRegion();
+        return $this->getCode() . '-'. $this->getRegion();
     }
 
     public function isRegionSame(): bool
     {
-        return $this->region === $this->country;
+        return $this->region === $this->code;
     }
 }
