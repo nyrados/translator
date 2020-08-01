@@ -14,11 +14,11 @@ interface ProviderInterface
      * Returns a translation if provider has a translation.
      *
      * If doesn't provider have a translation for the string
-     * the function returns null
+     * the function returns an empty array
      *
      * @param LanguageInterface $language
-     * @param string $translation
-     * @return Translation|null
+     * @param string[] $string
+     * @return Translation[]
      */
-    public function getTranslation(Language $language, string $translation): ?Translation;
+    public function getTranslations(Language $language, array $strings): array;
 }

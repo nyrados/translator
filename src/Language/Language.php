@@ -2,7 +2,6 @@
 namespace Nyrados\Translator\Language;
 
 use InvalidArgumentException;
-use Nyrados\Translator\Helper;
 use Nyrados\Translator\TranslatorApi;
 
 class Language
@@ -13,19 +12,25 @@ class Language
 
     public function __construct($language)
     {
+        $this->parseLanguage($language);
+    }
+
+    private function parseLanguage($language)
+    {
         if ($language instanceof self) {
             $this->region = $language->getRegion();
             $this->country = $language->getCountry();
         } else if (is_string($language) || is_object($language) && method_exists($language, '__toSting') ) {
 
-            $string = (string) $language;
+            $string = strtolower((string) $language);
 
             if(!preg_match(TranslatorApi::PARSER, $string, $output)) {
-                InvalidLanguageException::throwMalformed($string);
+                throw new InvalidArgumentException(sprintf("Invalid Language String! Unable to parse '%s'", $language));
             }
 
             $this->country = $output['country']; 
             $this->region  = isset($output['region']) ? $output['region'] : $output['country'];
+
         } else {
             throw new InvalidArgumentException ("Language must be an instance of '" . LanguageInterface::class . "' or a string");
         }

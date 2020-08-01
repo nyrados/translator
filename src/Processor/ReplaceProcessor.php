@@ -2,28 +2,28 @@
 namespace Nyrados\Translator\Processor;
 
 use Nyrados\Translator\Translation\Context\TranslationContext;
+use Nyrados\Translator\Translation\Translation;
 
 class ReplaceProcessor implements ProcessorInterface
 {
-
-    private $end; 
-    private $start;
-
-    public function __construct (string $start = '{', string $end = '}')
-    {
-        $this->start = $start;
-        $this->end = $end;
-    }
-
-    public function process(string $translation, TranslationContext $context): string
+    public function process(string $translation, array $context): string
     {
         $replace = [];
-        $context = $context->getContextVars();
 
         foreach (array_keys($context) as $contextVar) {
-            $replace[] = $this->start . $contextVar . $this->end;
+            $replace[] = '{' . $contextVar . '}';
         }
 
         return str_replace($replace, array_values($context), $translation);
+    }
+
+    public static function addReplaceProcessor(Translation $translation): Translation
+    {
+        if (preg_match('/{[a-z]+}/', (string) $translation)) {
+            
+            return $translation->withProcessor(self::class);
+        }
+
+        return $translation;
     }
 }

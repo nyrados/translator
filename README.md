@@ -1,2 +1,2 @@
-# translation-api
-A Translation API with caching 
+# Translator
+Translation API to localize web applications

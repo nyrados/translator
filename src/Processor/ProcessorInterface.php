@@ -6,5 +6,5 @@ use Nyrados\Translator\Translation\Context\TranslationContext;
 
 interface ProcessorInterface
 {
-    public function process(string $translation, TranslationContext $context): string;
+    public function process(string $translation, array $context): string;
 }
