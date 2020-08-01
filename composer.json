@@ -1,6 +1,7 @@
 {
     "name": "nyrados/translation-api",
     "description": "Translation Api to localize webpages",
+    "version": "0.1",
     "type": "libary",
     "require": {
         "psr/container": "^1.0",
