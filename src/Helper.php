@@ -40,7 +40,7 @@ class Helper
      */
     public static function parseAcceptLanguage(string $header): array 
     {
-        $segments = explode(',', $header);
+        $segments = explode(',', str_replace(' ', '', $header));
         $preferences = array_map(function($element) {
             return explode(';q=', $element);
         }, $segments);
