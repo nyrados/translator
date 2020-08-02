@@ -22,7 +22,7 @@ use Traversable;
 class TranslatorApi
 {
     public const 
-        PARSER = '/^(?<country>[a-z]{2,})(-(?<region>[a-z]{2,}))?$/',
+        PARSER = '/^(?<code>[a-z]{2,})(-(?<region>[a-z]{2,}))?$/',
         TRANSLATION_STRING_SEPARATOR = '_',
         TRANSLATION_STRING_SEPARATE_DEPTH = 1
     ;

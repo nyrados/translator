@@ -104,7 +104,7 @@ class CacheGroup
             var_dump ($langKeys, $data);
 
             // Dont refresh file if it defines the same keys
-            if (isset($this->langKeys[$lang]) && $data['c'] == $this->buildChecksum($this->langKeys[$lang])) {
+            if (isset($this->langKeys[$lang]) && $data['c'] == $this->buildChecksum($this->langKeys[$lang]) || empty($langKeys)) {
                 continue; 
             }
             
