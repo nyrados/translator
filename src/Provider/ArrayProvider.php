@@ -2,6 +2,7 @@
 namespace Nyrados\Translator\Provider;
 
 use Generator;
+use Nyrados\Translator\Helper;
 use Nyrados\Translator\Language\Language;
 use Nyrados\Translator\Processor\ReplaceProcessor;
 use Nyrados\Translator\Translation\Translation;
@@ -25,7 +26,7 @@ class ArrayProvider implements ProviderInterface
         
         $rs = [];
         foreach ($strings as $string) {
-            $rs[] = ReplaceProcessor::addReplaceProcessor(new Translation($this->data[$language->getId()][$string]));
+            $rs[] = Helper::detectProccessor(new Translation($this->data[$language->getId()][$string]));
         }
 
         return $rs;

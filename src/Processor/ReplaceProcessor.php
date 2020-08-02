@@ -16,14 +16,4 @@ class ReplaceProcessor implements ProcessorInterface
 
         return str_replace($replace, array_values($context), $translation);
     }
-
-    public static function addReplaceProcessor(Translation $translation): Translation
-    {
-        if (preg_match('/{[a-z]+}/', (string) $translation)) {
-            
-            return $translation->withProcessor(self::class);
-        }
-
-        return $translation;
-    }
 }
