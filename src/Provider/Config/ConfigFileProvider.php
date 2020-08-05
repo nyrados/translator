@@ -2,8 +2,11 @@
 namespace Nyrados\Translator\Provider\Config;
 
 use InvalidArgumentException;
+use LogicException;
+use Nyrados\Translator\Helper;
 use Nyrados\Translator\Language\Language;
 use Nyrados\Translator\Provider\ArrayProvider;
+use Nyrados\Translator\TranslatorApi;
 use Symfony\Component\Yaml\Yaml;
 
 class ConfigFileProvider extends ArrayProvider
@@ -14,9 +17,7 @@ class ConfigFileProvider extends ArrayProvider
 
     public function __construct(string $dir)
     {
-        if(!is_dir($dir)) {
-            throw new InvalidArgumentException(sprintf("Invalid Directory '%s'", $dir));
-        }
+        Helper::createDirIfNotExists($dir);
 
         $this->dir = $dir;
 
@@ -34,11 +35,24 @@ class ConfigFileProvider extends ArrayProvider
             return $translations;
         }
 
-        foreach ($this->converter as $extension => $converter) {
-            $file = $this->dir . '/' . $language->getId() . '.' . $extension;
-            if (file_exists($file)) {
-                $this->set($language, $converter->convert($file));
+        foreach(scandir($this->dir) as $file) {
+            
+            $file = $this->dir . '/' . $file;
+
+            if (is_dir($file)) {
+                continue;
             }
+
+            // format: [prefix].[lang].[extension]
+            $split = explode('.', $file);
+            $extension = array_pop($split);
+
+            if (!isset($this->converter[$extension])) {
+                continue;
+            }
+
+
+            $this->set(array_pop($split), $this->converter[$extension]->convert($file));
         }
 
         return parent::getTranslations($language, $strings);
@@ -47,6 +61,29 @@ class ConfigFileProvider extends ArrayProvider
     public function setConfigFileConverter(string $extension, ConfigFileConverterInterface $converter)
     {
         $this->converter[$extension] = $converter;
+    }
+
+    public function saveMissing(TranslatorApi $translator, string $format, string $name = '')
+    {
+        if (!isset($this->converter[$format])) {
+            throw new InvalidArgumentException('Invalid Format "' . $format . "'");
+        }
+
+        $file = (empty($name) ? $translator->getName() : $name) . '.' 
+                . $translator->getFallbackLanguage()->getId() . '.' . $format
+        ;
+
+        $this->converter[$format]->saveMissing($this->dir . '/' . $file, $translator->getUndefinedStrings());
+        
+    }
+
+    public static function generateContextComment(array $context)
+    {
+        $context = array_map(function(string $name) {
+            return '{' . $name . '}';
+        }, array_keys($context));
+
+        return 'Defined context vars: ' . implode(', ', $context);
     }
 
 

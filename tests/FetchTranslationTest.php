@@ -16,6 +16,7 @@ class FetchTranslationTest extends TestCase
     {
         $this->translator = new TranslatorApi();
         $this->translator->addProvider($provider = new ArrayProvider());
+        $this->translator->setFallback('en-en');
         $this->translator->setPreferences(['es', 'en-us']);
 
         $provider->set('en', [
@@ -60,7 +61,7 @@ class FetchTranslationTest extends TestCase
         $this->assertSame((string) $translation, 'test3_en-en');
     }
 
-    public function testInvalidLanguageString()
+    public function testCanDetectInvalidLanguageString()
     {
         $this->assertEmpty($this->translator->fetchTranslations(['test4']));
     }
@@ -82,9 +83,10 @@ class FetchTranslationTest extends TestCase
             $this->assertSame($lang, $translation->getLanguage()->getId());
             $this->assertSame($string . '_' . $translation->getLanguage()->getId(), (string) $translation);
         }
+
+        $this->assertEmpty(
+            $this->translator->fetchTranslations(['test1', 'test4', 'test2', 'test3'])
+        );
     }
-
-
-
 
 }

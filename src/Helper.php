@@ -1,6 +1,7 @@
 <?php
 namespace Nyrados\Translator;
 
+use Nyrados\Translator\Processor\ReplaceProcessor;
 use Nyrados\Translator\Translation\Translation;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -64,9 +65,16 @@ class Helper
     public static function detectProccessor(Translation $translation): Translation
     {
         if (preg_match('/{[a-z]+}/', (string) $translation)) {
-            $translation = $translation->withProcessor(self::class);
+            $translation = $translation->withProcessor(ReplaceProcessor::class);
         }
 
         return $translation;
+    }
+
+    public static function createDirIfNotExists(string $name)
+    {
+        if(!is_dir($name)){
+            mkdir($name, 0777, true);
+        }
     }
 }

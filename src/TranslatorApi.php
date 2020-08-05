@@ -33,6 +33,9 @@ class TranslatorApi
     /** @var UndefinedStringCollector */
     private $undefined;
 
+    /** @var string */
+    private $name = 'default';
+
     /**
      * Construct a new TranslatorApi
      * 
@@ -98,11 +101,18 @@ class TranslatorApi
      * @param string $name
      * @return void
      */
-    public function setCacheName(string $name): void
+    public function setName(string $name): void
     {
+        $this->name = $name;
+
         if($this->config->isCacheActive()) {
             $this->config->getRequestCache()->load($name, $this->preferences);
         }
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**

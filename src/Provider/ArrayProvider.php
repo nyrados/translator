@@ -1,12 +1,9 @@
 <?php
 namespace Nyrados\Translator\Provider;
 
-use Generator;
 use Nyrados\Translator\Helper;
 use Nyrados\Translator\Language\Language;
-use Nyrados\Translator\Processor\ReplaceProcessor;
 use Nyrados\Translator\Translation\Translation;
-use RecursiveTreeIterator;
 
 class ArrayProvider implements ProviderInterface
 {
@@ -35,7 +32,9 @@ class ArrayProvider implements ProviderInterface
     public function set(string $language, array $data)
     {
         foreach ($data as $string => $translation) {
-            $this->data[(new Language($language))->getId()][$string] = $translation;
+            if ($translation != null) {
+                $this->data[(new Language($language))->getId()][$string] = $translation;
+            }
         }
     }
 }

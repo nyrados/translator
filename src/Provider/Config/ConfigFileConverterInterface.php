@@ -1,6 +1,8 @@
 <?php
 namespace Nyrados\Translator\Provider\Config;
 
+use Nyrados\Translator\Translation\UndefinedStringCollector;
+
 interface ConfigFileConverterInterface
 {
     /**
@@ -13,4 +15,6 @@ interface ConfigFileConverterInterface
      * @return array
      */
     public function convert(string $file): array;
+
+    public function saveMissing(string $file, UndefinedStringCollector $strings): void;
 }
