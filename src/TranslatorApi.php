@@ -1,23 +1,14 @@
 <?php
 namespace Nyrados\Translator;
 
-use DateInterval;
 use InvalidArgumentException;
-use Nyrados\Translator\Cache\ArrayCache;
-use Nyrados\Translator\Cache\CacheItem;
-use Nyrados\Translator\Cache\IterableCache;
-use Nyrados\Translator\Cache\RequestCacheInterface;
-use Nyrados\Translator\Cache\MemoryCache;
-use Nyrados\Translator\Cache\RequestCache;
-use Nyrados\Translator\Cache\RequestCacheSaver;
+use Nyrados\Translator\Processor\ProcessorInterface;
 use Nyrados\Translator\Language\Language;
 use Nyrados\Translator\Provider\ProviderInterface;
 use Nyrados\Translator\Translation\Translation;
 use Nyrados\Translator\Translation\TranslationSection;
-use Psr\Cache\CacheItemPoolInterface;
-use Psr\Container\ContainerInterface;
+use Nyrados\Translator\Translation\UndefinedStringCollector;
 use RuntimeException;
-use Traversable;
 
 class TranslatorApi
 {
@@ -39,15 +30,18 @@ class TranslatorApi
     /** @var Config */
     public $config = [];
 
+    /** @var UndefinedStringCollector */
+    private $undefined;
+
     /**
      * Construct a new TranslatorApi
      * 
      * @param array $config Assoc array with mixed config values
      * 
-     * Aviable Options:
+     * ## Aviable Options:
      * 
-     * Caching:
-     * --------------
+     * ### Caching:
+     * 
      * The cache saves the translation results from the translation providers as file.
      * So the translator has not to look up each time which translation provider is required
      * and which is the suitable language 
@@ -66,8 +60,8 @@ class TranslatorApi
      *      A Dateinterval that describes how long the cache is stored.
      *      Default: 1 hour
      * 
-     * Other:
-     * --------------
+     * ### Other:
+     * 
      * * processor_container (Psr\Container\ContainerInterface)
      *      A container that provides values of Nyrados\Translator\Processor\ProcessorInterface
      *      Default: Nyrados\Translator\Processor\ProcessorContainer
@@ -77,7 +71,7 @@ class TranslatorApi
         $this->config = new Config($config);
         $this->fallback = new Language('en');
         $this->preferences = [$this->fallback];
-        
+        $this->undefined = new UndefinedStringCollector();
     }   
 
     /**
@@ -189,6 +183,11 @@ class TranslatorApi
     public function single(string $value, array $context = [], string $language = ''): ?string
     {
         $translations = $this->fetchTranslations(is_string($value) ? [$value] : $value, $language);
+
+        if(empty($translations)) {
+            $this->undefined->set($value, $context);
+        }
+
         if (empty($translations)) {
             return null;
         }
@@ -236,26 +235,37 @@ class TranslatorApi
         }
 
         foreach ($preferences as $preference) {
-            foreach ($this->provider as $provider) {
-                $translations = $provider->getTranslations($preference, $strings);
+            $result = $this->fetchLanguageTranslations($strings, $preference);
+            if(!empty($result)) {
+                return $result;
+            }
+        }
 
-                if (!empty($translations)) {
+        return [];
+    }
 
-                    $i = 0;
-                    $rs = [];
-                    foreach ($translations as $translation) {
-                        $translation->setLanguage($preference);
-                        $rs[$strings[$i]] = $translation; 
-                        $i++;
-                    }
+    public function fetchLanguageTranslations(array $strings, $language): array
+    {
+        $language = new Language($language);
 
-                    $this->config->getRequestCache()->set($name, 
-                        $i === 1 ? $rs[$strings[0]] : $rs
-                    );
+        foreach ($this->provider as $provider) {
+            $translations = $provider->getTranslations($language, $strings);
 
-                    return $rs;
+            if (!empty($translations)) {
 
+                $i = 0;
+                $rs = [];
+                foreach ($translations as $translation) {
+                    $translation->setLanguage($language);
+                    $rs[$strings[$i]] = $translation; 
+                    $i++;
                 }
+
+                $this->config->getRequestCache()->set(implode('.', $strings), 
+                    $i === 1 ? $rs[$strings[0]] : $rs
+                );
+
+                return $rs;
             }
         }
 
@@ -285,5 +295,20 @@ class TranslatorApi
         }
 
         return $result;
+    }
+
+    /**
+     * Returns Fallback Language
+     *
+     * @return Language
+     */
+    public function getFallbackLanguage(): Language
+    {
+        return $this->fallback;
+    }
+
+    public function getUndefinedStrings(): UndefinedStringCollector
+    {
+        return $this->undefined;
     }
 }

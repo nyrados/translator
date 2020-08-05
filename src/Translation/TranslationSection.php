@@ -26,10 +26,19 @@ class TranslationSection implements Iterator
             $this->context[] = is_numeric($key) ? [] : $value;
             $this->strings[] = is_numeric($key) ? $value : $key;
         }
-        
 
         foreach ($translator->fetchTranslations($this->strings, $language) as $translation) {
             $this->translations[] = $translation;
+        }
+
+        if (empty($this->translations)) {
+            foreach ($this->strings as $string) {
+                $result = $translator->fetchLanguageTranslations(
+                    [$string], $this->translator->getFallbackLanguage()->getId()
+                );
+
+                $this->translations[] = empty($result) ? null : $result[$string];
+            }
         }
     }
 
@@ -75,6 +84,14 @@ class TranslationSection implements Iterator
     public function current()
     {
         return function (array $context = []) {
+
+            $context = array_merge($this->context[$this->index], $context);
+
+            if($this->translations[$this->index] === null) {
+                $this->translator->getUndefinedStrings()->set($this->strings[$this->index], $context);
+            }
+
+
             return $this->valid() 
                 ? $this->translator->processTranslation(
                     $this->translations[$this->index], 
