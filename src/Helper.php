@@ -77,4 +77,13 @@ class Helper
             mkdir($name, 0777, true);
         }
     }
+
+    public static function getChecksum($for)
+    {
+        if(is_array($for)) {
+            $for = implode('.', $for);
+        }
+
+        return md5($for);
+    }
 }

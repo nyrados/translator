@@ -2,6 +2,7 @@
 namespace Nyrados\Translator;
 
 use InvalidArgumentException;
+use Nyrados\Translator\Cache\FileCache;
 use Nyrados\Translator\Processor\ProcessorInterface;
 use Nyrados\Translator\Language\Language;
 use Nyrados\Translator\Provider\ProviderInterface;
@@ -35,6 +36,9 @@ class TranslatorApi
 
     /** @var string */
     private $name = 'default';
+
+    /** @var FileCache */
+    private $cache;
 
     /**
      * Construct a new TranslatorApi
@@ -106,7 +110,8 @@ class TranslatorApi
         $this->name = $name;
 
         if($this->config->isCacheActive()) {
-            $this->config->getRequestCache()->load($name, $this->preferences);
+            $this->cache = new FileCache($this->config->getCacheDir(), $name, $this->config->getRequestCache());
+            $this->cache->load($this->preferences);            
         }
     }
 
@@ -224,7 +229,7 @@ class TranslatorApi
      * @param string $language
      * @return Translation[]
      */
-    public function fetchTranslations(array $strings, string $language = ''): array
+    public function fetchTranslations(array $strings, string $language = '')
     {
         $preferences = $this->preferences;
         $requestCache = $this->config->getRequestCache();
@@ -232,16 +237,8 @@ class TranslatorApi
             array_unshift($preferences, new Language($language));
         }
 
-        $name = implode('.', $strings);
-
-        if ($requestCache->has($name)) {
-            $data = $requestCache->get($name);
-
-            if ($data instanceof Translation) {
-                return [$strings[0] => $data];
-            }
-
-            return $data;
+        if ($requestCache->has($strings)) {
+            return $requestCache->get($strings);
         }
 
         foreach ($preferences as $preference) {
@@ -254,6 +251,13 @@ class TranslatorApi
         return [];
     }
 
+    /**
+     * Fetch Translation for Language
+     *
+     * @param array $strings
+     * @param string|Language $language
+     * @return array
+     */
     public function fetchLanguageTranslations(array $strings, $language): array
     {
         $language = new Language($language);
@@ -271,9 +275,7 @@ class TranslatorApi
                     $i++;
                 }
 
-                $this->config->getRequestCache()->set(implode('.', $strings), 
-                    $i === 1 ? $rs[$strings[0]] : $rs
-                );
+                $this->config->getRequestCache()->set($rs);
 
                 return $rs;
             }
@@ -317,6 +319,11 @@ class TranslatorApi
         return $this->fallback;
     }
 
+    /**
+     * Returns Undefinded String Collector
+     *
+     * @return UndefinedStringCollector
+     */
     public function getUndefinedStrings(): UndefinedStringCollector
     {
         return $this->undefined;

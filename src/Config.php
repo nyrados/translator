@@ -30,6 +30,11 @@ class Config
         );
     }
 
+    public function getCacheDir(): string
+    {
+        return $this->config['cache_dir'];
+    }
+
     public function isCacheActive(): bool
     {
         return $this->config['cache'];
