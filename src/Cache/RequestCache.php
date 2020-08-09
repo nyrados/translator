@@ -13,12 +13,6 @@ class RequestCache
     /** @var Translation[] */
     protected $storage = [];
 
-    /** @var DateInterval */
-    private $interval;
-
-    private $name;
-    private $dir;
-
     /** @var CacheInterface */
     private $source;
 
@@ -34,15 +28,8 @@ class RequestCache
     /** @var array<string, array> */
     private $groupKeys = [];
 
-    public function __construct(DateInterval $interval, string $cacheDir)
+    public function __construct()
     {
-        $this->dir = $cacheDir;
-        $this->interval =  $interval;
-
-        if (!is_dir($this->dir)) {
-            mkdir($this->dir, 0777, true);
-        }
-
         $this->source = new ArrayCache();
         $this->single = new ArrayCache();
     }

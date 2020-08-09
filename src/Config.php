@@ -24,10 +24,12 @@ class Config
 
         $this->config = array_merge($defaultConfig, $config);
 
-        $this->requestCache = new RequestCache(
-            $this->config['cache_interval'], 
-            $this->config['cache_dir']
-        );
+        $this->requestCache = new RequestCache();
+    }
+
+    public function getCacheExpireInterval(): DateInterval
+    {
+        return $this->config['cache_interval'];
     }
 
     public function getCacheDir(): string

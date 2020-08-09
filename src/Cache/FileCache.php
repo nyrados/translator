@@ -3,6 +3,7 @@ namespace Nyrados\Translator\Cache;
 
 use DateInterval;
 use DateTime;
+use Nyrados\Translator\Config;
 use Nyrados\Translator\Helper;
 use Nyrados\Translator\Translation\Translation;
 
@@ -20,11 +21,12 @@ class FileCache
 
     private $meta = [];
 
-    public function __construct(string $dir, string $name, RequestCache $cache)
+    public function __construct(string $name, Config $config)
     {
-        $this->dir = $dir;
+        $this->dir = $config->getCacheDir();
         $this->name = $name;
-        $this->cache = $cache;
+        $this->cache = $config->getRequestCache();
+        $this->expires = (new DateTime())->add($expires);
         Helper::createDirIfNotExists($dir);
     }
 
@@ -36,6 +38,10 @@ class FileCache
         }
 
         $this->meta = include $this->dir . '/' . $this->name . '/meta.php';
+        if ($this->meta['e'] < (new DateTime())->getTimestamp()) {
+            $this->meta = [];
+            return;
+        }
         
         $this->loadSingle($preferences);
 
@@ -128,9 +134,10 @@ class FileCache
         }
 
         $this->saveArray([
-            'k' => $cache->getKeys(),
+            'e' => $this->expires,
             'c' => $cache->getChecksum(),
-            'g' => array_keys($cache->getDependedGroups())
+            'g' => array_keys($cache->getDependedGroups()),
+            'k' => $cache->getKeys(),
         ], $this->dir . '/' . $this->name . '/meta');
 
         $data = $this->sortTranslationsByLanguageId($cache->getCache()->getMultiple($cache->getKeys()));

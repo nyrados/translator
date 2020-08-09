@@ -110,7 +110,7 @@ class TranslatorApi
         $this->name = $name;
 
         if($this->config->isCacheActive()) {
-            $this->cache = new FileCache($this->config->getCacheDir(), $name, $this->config->getRequestCache());
+            $this->cache = new FileCache($name, $this->config);
             $this->cache->load($this->preferences);            
         }
     }
