@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Provider\Config;
 
 use Symfony\Component\Yaml\Yaml;

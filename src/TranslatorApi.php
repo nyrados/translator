@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator;
 
 use InvalidArgumentException;
@@ -13,62 +14,54 @@ use RuntimeException;
 
 class TranslatorApi
 {
-    public const 
+    public const
         PARSER = '/^(?<code>[a-z]{2,})(-(?<region>[a-z]{2,}))?$/',
         TRANSLATION_STRING_SEPARATOR = '_',
         TRANSLATION_STRING_SEPARATE_DEPTH = 1
     ;
-
-    /** @var ProviderInterface[] */
+/** @var ProviderInterface[] */
     private $provider = [];
-
-    /** @var Language[] */
+/** @var Language[] */
     private $preferences;
-
-    /** @var Language */
+/** @var Language */
     private $fallback;
-
-    /** @var Config */
+/** @var Config */
     public $config = [];
-
-    /** @var UndefinedStringCollector */
+/** @var UndefinedStringCollector */
     private $undefined;
-
-    /** @var string */
+/** @var string */
     private $name = 'default';
-
-    /** @var FileCache */
+/** @var FileCache */
     private $cache;
-
-    /**
+/**
      * Construct a new TranslatorApi
-     * 
+     *
      * @param array $config Assoc array with mixed config values
-     * 
+     *
      * ## Aviable Options:
-     * 
+     *
      * ### Caching:
-     * 
+     *
      * The cache saves the translation results from the translation providers as file.
      * So the translator has not to look up each time which translation provider is required
-     * and which is the suitable language 
-     * 
-     * * cache (bool):  
+     * and which is the suitable language
+     *
+     * * cache (bool):
      *      Activate or deactivate caching.
      *      Its not recommended for an dev environment.
      *      Default: false
-     * 
-     * * cache_dir (string):     
+     *
+     * * cache_dir (string):
      *      An absolute path to a cache directory.
      *      If the directory does not exists it will be created.
      *      Default: subfolder with name translator-md5(__DIR__) in sys_get_temp_dir()
-     * 
+     *
      * * cache_interval (DateInterval):
      *      A Dateinterval that describes how long the cache is stored.
      *      Default: 1 hour
-     * 
+     *
      * ### Other:
-     * 
+     *
      * * processor_container (Psr\Container\ContainerInterface)
      *      A container that provides values of Nyrados\Translator\Processor\ProcessorInterface
      *      Default: Nyrados\Translator\Processor\ProcessorContainer
@@ -79,7 +72,7 @@ class TranslatorApi
         $this->fallback = new Language('en');
         $this->preferences = [$this->fallback];
         $this->undefined = new UndefinedStringCollector();
-    }   
+    }
 
     /**
      * Adds Translation Provider
@@ -99,7 +92,7 @@ class TranslatorApi
 
     /**
      * Sets Cache Name if cache is enabled
-     * 
+     *
      * For details look at the options.
      *
      * @param string $name
@@ -108,10 +101,9 @@ class TranslatorApi
     public function setName(string $name): void
     {
         $this->name = $name;
-
-        if($this->config->isCacheActive()) {
+        if ($this->config->isCacheActive()) {
             $this->cache = new FileCache($name, $this->config);
-            $this->cache->load($this->preferences);            
+            $this->cache->load($this->preferences);
         }
     }
 
@@ -134,17 +126,13 @@ class TranslatorApi
         }
 
         $this->preferences = [];
-
         foreach (array_values(array_unique($preferences)) as $language) {
-            
             $language = new Language($language);
-
             $this->preferences[] = $language;
-
             if (
                 !in_array($language->getCode(), $preferences) &&
-                !in_array($language->withRegion($language->getCode()) , $preferences) 
-            ) { 
+                !in_array($language->withRegion($language->getCode()), $preferences)
+            ) {
                 $this->preferences[] = $language->withRegion($language->getCode());
             }
         }
@@ -169,7 +157,7 @@ class TranslatorApi
      * @param array|string $value
      * @param array $context
      * @param string $language
-     * 
+     *
      * @return TranslationSection|string|null|
      */
     public function translate($value, array $context = [], string $language = '')
@@ -189,8 +177,8 @@ class TranslatorApi
      * Translates a single translation string
      *
      * If the translation string is unaviable then null will be returned.
-     * 
-     * @param string $value The translation string name 
+     *
+     * @param string $value The translation string name
      * @param array $context Optional context
      * @param string $language Optional preffered language
      * @return string|null
@@ -198,8 +186,7 @@ class TranslatorApi
     public function single(string $value, array $context = [], string $language = ''): ?string
     {
         $translations = $this->fetchTranslations(is_string($value) ? [$value] : $value, $language);
-
-        if(empty($translations)) {
+        if (empty($translations)) {
             $this->undefined->set($value, $context);
         }
 
@@ -243,7 +230,7 @@ class TranslatorApi
 
         foreach ($preferences as $preference) {
             $result = $this->fetchLanguageTranslations($strings, $preference);
-            if(!empty($result)) {
+            if (!empty($result)) {
                 return $result;
             }
         }
@@ -261,22 +248,18 @@ class TranslatorApi
     public function fetchLanguageTranslations(array $strings, $language): array
     {
         $language = new Language($language);
-
         foreach ($this->provider as $provider) {
             $translations = $provider->getTranslations($language, $strings);
-
             if (!empty($translations)) {
-
                 $i = 0;
                 $rs = [];
                 foreach ($translations as $translation) {
                     $translation->setLanguage($language);
-                    $rs[$strings[$i]] = $translation; 
+                    $rs[$strings[$i]] = $translation;
                     $i++;
                 }
 
                 $this->config->getRequestCache()->set($rs);
-
                 return $rs;
             }
         }
@@ -295,7 +278,6 @@ class TranslatorApi
     {
         $result = (string) $translation;
         $container = $this->config->getProcessorContainer();
-
         foreach ($translation->getProcessor() as $processorName) {
             if (!$container->has($processorName)) {
                 throw new RuntimeException(sprintf("Invalid Translation Processor '%s' ", $processorName));

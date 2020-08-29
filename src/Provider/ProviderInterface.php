@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Provider;
 
 use Nyrados\Translator\Language\Language;
@@ -6,7 +7,7 @@ use Nyrados\Translator\Language\LanguageInterface;
 use Nyrados\Translator\Translation\Translation;
 
 /**
- * Describes a class that can provide Translations for a specific Language 
+ * Describes a class that can provide Translations for a specific Language
  */
 interface ProviderInterface
 {

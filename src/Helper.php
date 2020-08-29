@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator;
 
 use Nyrados\Translator\Processor\ReplaceProcessor;
@@ -9,13 +10,12 @@ class Helper
 {
     private function __construct()
     {
-
     }
 
     /**
      * Provides language prefrences from $_SERVER
      * or Psr\Http\Message\ServerRequestInterface if provided
-     * 
+     *
      * If Nothing is aviable english will be returned
      *
      * @param ServerRequestInterface $request
@@ -40,19 +40,20 @@ class Helper
      * @param string $header
      * @return array
      */
-    public static function parseAcceptLanguage(string $header): array 
+    public static function parseAcceptLanguage(string $header): array
     {
         $segments = explode(',', str_replace(' ', '', $header));
-        $preferences = array_map(function($element) {
+        $preferences = array_map(function ($element) {
+
             return explode(';q=', $element);
         }, $segments);
-
         usort($preferences, function ($a, $b) {
-            return (isset($b[1]) ? $b[1] : 1) <=> (isset($a[1]) ? $a[1] : 1);    
-        });
 
-        return array_map(function(array $data) { 
-            return $data[0]; 
+            return (isset($b[1]) ? $b[1] : 1) <=> (isset($a[1]) ? $a[1] : 1);
+        });
+        return array_map(function (array $data) {
+ 
+            return $data[0];
         }, $preferences);
     }
 
@@ -73,14 +74,14 @@ class Helper
 
     public static function createDirIfNotExists(string $name)
     {
-        if(!is_dir($name)){
+        if (!is_dir($name)) {
             mkdir($name, 0777, true);
         }
     }
 
     public static function getChecksum($for)
     {
-        if(is_array($for)) {
+        if (is_array($for)) {
             $for = implode('.', $for);
         }
 

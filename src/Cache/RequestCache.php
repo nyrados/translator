@@ -1,9 +1,7 @@
 <?php
+
 namespace Nyrados\Translator\Cache;
 
-use ArrayIterator;
-use DateInterval;
-use IteratorAggregate;
 use Nyrados\Translator\Helper;
 use Nyrados\Translator\Translation\Translation;
 use Psr\SimpleCache\CacheInterface;
@@ -24,9 +22,10 @@ class RequestCache
 
     /** @var string[] */
     private $singleKeys = [];
-
+    
     /** @var array<string, array> */
     private $groupKeys = [];
+
 
     public function __construct()
     {
@@ -34,16 +33,28 @@ class RequestCache
         $this->single = new ArrayCache();
     }
 
-    public function has(array $keys) 
+    /**
+     * Check depending on the length of the given array if the RequestCache contains a
+     * single Translation or a Group
+     *
+     * @param array $keys
+     * @return boolean
+     */
+    public function has(array $keys)
     {
         return (count($keys) === 1 && $this->single->has($keys[0])) || isset($this->groups[Helper::getChecksum($keys)]);
     }
 
+    /**
+     * Sets Translations into Cache
+     *
+     * @param array $translations
+     * @return void
+     */
     public function set(array $translations)
     {
-        if(count($translations) === 1) {
+        if (count($translations) === 1) {
             foreach ($translations as $key => $translation) {
-
                 if (!in_array($key, $this->singleKeys)) {
                     $this->singleKeys[] = $key;
                 }
@@ -56,7 +67,6 @@ class RequestCache
 
         $group = clone $this->source;
         $name = Helper::getChecksum(array_keys($translations));
-
         foreach ($translations as $key => $translation) {
             $this->groupKeys[$name][] = $key;
             $group->set($key, $translation);
@@ -66,7 +76,13 @@ class RequestCache
         $this->groups[$name] = $group;
     }
 
-    public function get(array $keys)
+    /**
+     * Returns Translations
+     *
+     * @param array $keys
+     * @return array<Translation>
+     */
+    public function get(array $keys): ?array
     {
         if (count($keys) === 1) {
             return [
@@ -75,9 +91,8 @@ class RequestCache
         }
 
         $name = Helper::getChecksum($keys);
-
         if (!isset($this->groups[$name])) {
-            return;
+            return null;
         }
 
         return $this->groups[$name]->getMultiple($keys);
@@ -86,7 +101,7 @@ class RequestCache
     /**
      * Return Depended Groups
      *
-     * @return CacheInterface[]
+     * @return array<CacheInterface>
      */
     public function getDependedGroups(): array
     {
@@ -105,25 +120,27 @@ class RequestCache
 
     public function getKeys(string $name = null): iterable
     {
-        if($name === null) {
+        if ($name === null) {
             return $this->singleKeys;
         }
 
-        if(isset($this->groupKeys[$name])) {
+        if (isset($this->groupKeys[$name])) {
             return $this->groupKeys[$name];
         }
 
         return [];
     }
 
-    public function getName()
+    /**
+     * Returns Checksum to represent the used translations.
+     *
+     * @return void
+     */
+    public function getChecksum(): string
     {
-        return 'default';
+        return Helper::getChecksum([
+            Helper::getChecksum($this->singleKeys),
+            Helper::getChecksum(array_keys($this->groupKeys))
+        ]);
     }
-
-    public function getChecksum()
-    {
-        return Helper::getChecksum([Helper::getChecksum($this->singleKeys), Helper::getChecksum(array_keys($this->groupKeys))]);
-    }
-
 }

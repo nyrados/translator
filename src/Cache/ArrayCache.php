@@ -24,7 +24,7 @@ class ArrayCache implements CacheInterface
     }
 
     public function getMultiple($keys, $default = null): iterable
-    {   
+    {
         $rs = [];
         foreach ($keys as $key) {
             $rs[$key] = $this->get($key, $default);

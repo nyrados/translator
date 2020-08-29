@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Translation;
 
 use ArrayIterator;
@@ -7,7 +8,6 @@ use IteratorAggregate;
 final class UndefinedStringCollector implements IteratorAggregate
 {
     private $storage = [];
-
     public function set(string $name, array $context = [])
     {
         $this->storage[$name] = $context;

@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Processor;
 
 use Nyrados\Translator\Language\LanguageInterface;

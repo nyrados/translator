@@ -14,7 +14,7 @@ class ProcessorContainer implements ContainerInterface
             throw new InvalidArgumentException('Invalid Processor');
         }
 
-        return new $name;
+        return new $name();
     }
 
     public function has($name)

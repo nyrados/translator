@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Translation;
 
 use Iterator;
@@ -9,19 +10,14 @@ class TranslationSection implements Iterator
 
     /** @var Translation[] */
     private $translations = [];
-
-    /** @var TranslatorApi */
+/** @var TranslatorApi */
     private $translator;
-
     private $index = 0;
-
     private $context = [];
     private $strings = [];
-
     public function __construct(TranslatorApi $translator, array $data, string $language = '')
     {
         $this->translator = $translator;
-
         foreach ($data as $key => $value) {
             $this->context[] = is_numeric($key) ? [] : $value;
             $this->strings[] = is_numeric($key) ? $value : $key;
@@ -34,9 +30,9 @@ class TranslationSection implements Iterator
         if (empty($this->translations)) {
             foreach ($this->strings as $string) {
                 $result = $translator->fetchLanguageTranslations(
-                    [$string], $this->translator->getFallbackLanguage()->getId()
+                    [$string],
+                    $this->translator->getFallbackLanguage()->getId()
                 );
-
                 $this->translations[] = empty($result) ? null : $result[$string];
             }
         }
@@ -85,19 +81,15 @@ class TranslationSection implements Iterator
     {
         return function (array $context = []) {
 
-            $context = array_merge($this->context[$this->index], $context);
 
-            if($this->translations[$this->index] === null) {
+            $context = array_merge($this->context[$this->index], $context);
+            if ($this->translations[$this->index] === null) {
                 $this->translator->getUndefinedStrings()->set($this->strings[$this->index], $context);
             }
 
 
-            return $this->valid() 
-                ? $this->translator->processTranslation(
-                    $this->translations[$this->index], 
-                    array_merge($this->context[$this->index], $context
-                )) : null;
+            return $this->valid()
+                ? $this->translator->processTranslation($this->translations[$this->index], array_merge($this->context[$this->index], $context)) : null;
         };
     }
-
 }

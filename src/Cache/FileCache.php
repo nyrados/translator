@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Cache;
 
 use DateInterval;
@@ -16,24 +17,27 @@ class FileCache
     private $cache;
 
     private $expires;
-
     private $name;
-
     private $meta = [];
-
+    
     public function __construct(string $name, Config $config)
     {
         $this->dir = $config->getCacheDir();
-        $this->name = $name;
+        $this->name = md5($name);
         $this->cache = $config->getRequestCache();
-        $this->expires = (new DateTime())->add($expires);
-        Helper::createDirIfNotExists($dir);
+        $this->expires = (new DateTime())->add($config->getCacheExpireInterval());
+        Helper::createDirIfNotExists($this->dir);
     }
 
-
-    public function load(array $preferences)
+    /**
+     * Loads Cache into RequestCache
+     *
+     * @param array $preferences
+     * @return void
+     */
+    public function load(array $preferences): void
     {
-        if(!file_exists($this->dir . '/' . $this->name . '/meta.php')) {
+        if (!file_exists($this->dir . '/' . $this->name . '/meta.php')) {
             return;
         }
 
@@ -44,156 +48,199 @@ class FileCache
         }
         
         $this->loadSingle($preferences);
-
-        if(!isset($this->meta['g'])) {
+        if (!isset($this->meta['g'])) {
             return;
         }
 
-        foreach($this->meta['g'] as $group) {
+        foreach ($this->meta['g'] as $group) {
             $this->loadGroup($group, $preferences);
         }
-
     }
 
-    public function loadSingle(array $preferences) 
+    /**
+     * Loads Single Translations into RequestCache
+     *
+     * @param array $preferences
+     * @return void
+     */
+    public function loadSingle(array $preferences): void
     {
         $neededKeys = $this->meta['k'];
-        $name = $this->cache->getName();
 
         foreach ($preferences as $preference) {
-            if(!file_exists($this->dir . '/' . $name . '/'  . $preference->getId() . '.php')) {
+            $file = $this->dir . '/' . $this->name . '/'  . $preference->getId() . '.php';
+            if (!file_exists($file)) {
                 continue;
             }
 
-            $data = require $this->dir . '/' . $name . '/' . $preference->getId() . '.php';
+            $data = require $file;
             foreach ($data as $key => $translation) {
-
-                //Check if key is needed
+                //Skip if key is not needed
                 if ($this->cache->has([$key]) && !in_array($key, $neededKeys)) {
                     continue;
                 }
 
-                //Remove Key from List
+                //Remove key from needed key list
                 if (($search = array_search($key, $neededKeys)) !== false) {
                     unset($neededKeys[$search]);
                 }
 
-                //Set Translation
+                //Set the translation
                 $this->cache->set([$key => unserialize($translation)]);
 
-                if(empty($neededKeys)) {
+                //Interupt if no other key is needed
+                if (empty($neededKeys)) {
                     break 2;
                 }
             }
         }
     }
 
+    /**
+     * Loads Group into Cache
+     *
+     * @param string $group
+     * @param array $preferences
+     * @return void
+     */
     public function loadGroup(string $group, array $preferences)
     {
-        if(!is_dir($this->dir . '/g/' . $group)) {
+        if (!is_dir($this->dir . '/g/' . $group)) {
             return;
         }
 
         foreach ($preferences as $preference) {
-
             $file = $this->dir . '/g/' . $group . '/' . $preference->getId() . '.php';
-
             if (!file_exists($file)) {
                 continue;
             }
             
-            $this->cache->set(array_map(function(string $translation): Translation {
-
+            $this->cache->set(array_map(function (string $translation): Translation {
                 return unserialize($translation);
-
             }, require $file));
-
+            
             break;
-        } 
-
+        }
     }
 
-    public function __destruct()
-    {
-        $this->save($this->cache);
-    }
-
-
-
-
-    /** SAVE */
-
-    public function save(RequestCache $cache)
+    /**
+     * Saves Whole Requestcache
+     *
+     * @return void
+     */
+    public function save(): void
     {
         Helper::createDirIfNotExists($this->dir . '/' . $this->name);
 
-        $checksum = $cache->getChecksum();
-
-        if(isset($this->meta['c']) && $this->meta['c'] == $checksum) {
+        if (!$this->saveMetaFile()) {
             return;
         }
 
-        $this->saveArray([
-            'e' => $this->expires,
-            'c' => $cache->getChecksum(),
-            'g' => array_keys($cache->getDependedGroups()),
-            'k' => $cache->getKeys(),
-        ], $this->dir . '/' . $this->name . '/meta');
-
-        $data = $this->sortTranslationsByLanguageId($cache->getCache()->getMultiple($cache->getKeys()));
-
+        $data = $this->sortTranslationsByLanguageId($this->cache->getCache()->getMultiple($this->cache->getKeys()));
         foreach ($data as $language => $translations) {
-
             $rs = [];
-            foreach($translations as $key => $translation) {
+            foreach ($translations as $key => $translation) {
                 $rs[$key] = serialize($translation);
             }
 
-            $this->saveArray($rs, $this->dir . '/' . $this->name . '/' . $language);
+            $this->saveArray($this->dir . '/' . $this->name . '/' . $language, $rs);
         }
 
 
-        foreach ($cache->getDependedGroups() as $this->name => $groupCache) {
-            $keys = $cache->getKeys($this->name);
-
+        foreach ($this->cache->getDependedGroups() as $this->name => $groupCache) {
+            $keys = $this->cache->getKeys($this->name);
             $this->saveGroup($this->name, $groupCache->getMultiple($keys));
         }
-
     }
 
-    private function sortTranslationsByLanguageId(iterable $translations)
+    /**
+     * Saves Request Cache on destruct
+     */
+    public function __destruct()
+    {
+        $this->save();
+    }
+
+    /**
+     * Saves Meta File if needed
+     *
+     * @return bool true if cache needs to be updated
+     */
+    private function saveMetaFile(): bool
+    {
+        $checksum = $this->cache->getChecksum();
+        if (isset($this->meta['c']) && $this->meta['c'] == $checksum) {
+            return false;
+        }
+
+        $this->saveArray($this->dir . '/' . $this->name . '/meta', [
+            'e' => $this->expires->getTimestamp(),
+            'c' => $this->cache->getChecksum(),
+            'g' => array_keys($this->cache->getDependedGroups()),
+            'k' => $this->cache->getKeys(),
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Sorts Translations by Language
+     *
+     * Result Structure
+     *  [
+     *      // Translations with Language fr-fr
+     *      "fr-fr" => [],
+     *
+     *      // Translations with Language en-en
+     *      "en-en" => []
+     *  ]
+     *
+     * @param iterable $translations
+     * @return array[]
+     */
+    private function sortTranslationsByLanguageId(iterable $translations): array
     {
         $sort = [];
-        foreach($translations as $key => $translation) {
-            $sort[$translation->getLanguage()->getId()][$key] = $translation; 
+        foreach ($translations as $key => $translation) {
+            $sort[$translation->getLanguage()->getId()][$key] = $translation;
         }
 
         return $sort;
     }
 
+    /**
+     * Saves a Translation Group
+     *
+     * @param string $name
+     * @param Translation[] $translations
+     * @return void
+     */
     private function saveGroup(string $name, iterable $translations)
     {
-        if(empty($translations)) {
+        if (empty($translations)) {
             return;
         }
 
         $rs = [];
-        foreach($translations as $key => $translation) {
+        foreach ($translations as $key => $translation) {
             $rs[$key] = serialize($translation);
         }
 
         Helper::createDirIfNotExists($this->dir . '/g/' . $name);
-
-        $this->saveArray($rs,  $this->dir . '/g/' . $name . '/' . $translation->getLanguage()->getId());
+        $this->saveArray($this->dir . '/g/' . $name . '/' . $translation->getLanguage()->getId(), $rs);
     }
 
-    private function saveArray(array $array, string $file)
+    /**
+     * Saves PHP Array as File
+     *
+     * @param string $file
+     * @param array $array
+     * @return void
+     */
+    private function saveArray(string $file, array $array): void
     {
         $fp = fopen($file . '.php', 'w+');
         fwrite($fp, "<?php\nreturn " . var_export($array, true) . ';');
         fclose($fp);
     }
-
-
-
 }

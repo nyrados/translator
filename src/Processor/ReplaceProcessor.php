@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Processor;
 
 use Nyrados\Translator\Translation\Context\TranslationContext;
@@ -9,7 +10,6 @@ class ReplaceProcessor implements ProcessorInterface
     public function process(string $translation, array $context): string
     {
         $replace = [];
-
         foreach (array_keys($context) as $contextVar) {
             $replace[] = '{' . $contextVar . '}';
         }

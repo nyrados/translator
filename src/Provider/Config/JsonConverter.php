@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Provider\Config;
 
 use Nyrados\Translator\Translation\UndefinedStringCollector;
@@ -19,15 +20,12 @@ class JsonConverter implements ConfigFileConverterInterface
 
         $i = 0;
         foreach ($strings as $string => $context) {
-
             $comment =  ConfigFileProvider::generateContextComment($context);
             $hash = substr(md5($comment . '.' . $string), 0, 5);
-
             if (!empty($context)) {
                 $data['//' . $hash . ': ' . $comment] = null;
             }
             $data[$string] = null;
-
         }
 
         $file = fopen($file, 'w+');

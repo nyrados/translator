@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator;
 
 use DateInterval;
@@ -9,10 +10,8 @@ use Psr\Container\ContainerInterface;
 class Config
 {
     private $config = [];
-
-    /** @var RequestCache */
+/** @var RequestCache */
     private $requestCache;
-
     public function __construct(array $config = [])
     {
         $defaultConfig = [
@@ -21,9 +20,7 @@ class Config
             'cache' => false,
             'processor_container' => new ProcessorContainer()
         ];
-
         $this->config = array_merge($defaultConfig, $config);
-
         $this->requestCache = new RequestCache();
     }
 

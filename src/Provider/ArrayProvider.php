@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Provider;
 
 use Nyrados\Translator\Helper;
@@ -8,10 +9,9 @@ use Nyrados\Translator\Translation\Translation;
 class ArrayProvider implements ProviderInterface
 {
     private $data = [];
-
     public function getTranslations(Language $language, array $strings): array
     {
-        if(!isset($this->data[$language->getId()])) {
+        if (!isset($this->data[$language->getId()])) {
             return [];
         }
 

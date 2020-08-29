@@ -1,4 +1,5 @@
 <?php
+
 namespace Nyrados\Translator\Translation;
 
 use InvalidArgumentException;
@@ -8,12 +9,9 @@ use Serializable;
 class Translation
 {
     private $string;
-
-    /** @var Language  */
+/** @var Language  */
     private $language;
-
     private $processor = [];
-
     public function __construct(string $string, iterable $processor = [])
     {
         $this->string = $string;
@@ -25,7 +23,6 @@ class Translation
     {
         $new = clone $this;
         $new->processor[] = $name;
-
         return $new;
     }
 
@@ -54,7 +51,6 @@ class Translation
         $data = [
             't' => (string) $this,
         ];
-
         if ($this->language instanceof Language) {
             $data['l'] = $this->language->getId();
         }
@@ -64,7 +60,6 @@ class Translation
         }
 
         return $data;
-
         return json_encode($data);
     }
 
@@ -82,7 +77,6 @@ class Translation
         $data = [
             't' => (string) $this,
         ];
-
         if ($this->language instanceof Language) {
             $data['l'] = $this->language->getId();
         }
@@ -96,21 +90,15 @@ class Translation
 
     public static function fromValue($value): self
     {
-        if($value instanceof self) {
+        if ($value instanceof self) {
             return $value;
         }
 
-        if(is_array($value) && isset($value['t']) && isset($value['l'])) {
-            
-            $new  = new static (
-                $value['t'], 
-                isset($value['p']) && is_iterable($value['p']) 
-                    ? $value['p'] 
-                    : []
-            );
-
+        if (is_array($value) && isset($value['t']) && isset($value['l'])) {
+            $new  = new static($value['t'], isset($value['p']) && is_iterable($value['p'])
+                    ? $value['p']
+                    : []);
             $new->setLanguage(new Language($value['l']));
-
             return $new;
         }
 

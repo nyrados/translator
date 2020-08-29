@@ -18,7 +18,7 @@ class ConfigFileGenerator
         $this->translator = $translator;
         $this->dir = $dir;
 
-        if(!is_dir($this->dir)) {
+        if (!is_dir($this->dir)) {
             mkdir($this->dir, 0777, true);
         }
     }
@@ -27,9 +27,8 @@ class ConfigFileGenerator
     {
         $strings = $this->translator->getUndefinedStrings();
         
-        $lines = []; 
+        $lines = [];
         foreach ($strings as $string => $context) {
-
             $context = $strings->getContext($string);
             if ($comments && !empty($context)) {
                 $lines[] = "\n" . '    " // ' . $this->generateContextComment($context) . '": null';
@@ -51,11 +50,9 @@ class ConfigFileGenerator
 
     private function generateContextComment(array $context)
     {
-        $context = array_map(function(string $name) {
+        $context = array_map(function (string $name) {
             return '{' . $name . '}';
         }, array_keys($context));
         return 'Defined context vars: ' . implode(', ', $context);
     }
-
-
 }
