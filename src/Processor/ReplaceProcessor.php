@@ -6,6 +6,19 @@ use Nyrados\Translator\Translation\Translation;
 
 class ReplaceProcessor implements ProcessorInterface
 {
+    /**
+     * Replaces all values from context.
+     * 
+     * Example:
+     *  
+     *  process("Hello {name}!", ["name" => "John"]);
+     *  
+     *  will produce: Hello John!
+     *
+     * @param string $translation
+     * @param array $context
+     * @return string
+     */
     public function process(string $translation, array $context): string
     {
         $replace = [];

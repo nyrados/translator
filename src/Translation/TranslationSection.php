@@ -60,7 +60,6 @@ class TranslationSection implements Iterator
         return $value === null ? '' : $value;
     }
 
-
     public function rewind()
     {
         $this->index = 0;
@@ -91,7 +90,6 @@ class TranslationSection implements Iterator
                 $this->translator->getUndefinedStrings()->set($this->strings[$this->index], $context);
             }
 
-
             return $this->valid() 
                 ? $this->translator->processTranslation(
                     $this->translations[$this->index], 
@@ -99,5 +97,4 @@ class TranslationSection implements Iterator
                 )) : null;
         };
     }
-
 }
