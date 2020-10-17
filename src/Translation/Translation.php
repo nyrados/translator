@@ -12,6 +12,7 @@ class Translation
     
     /** @var Language  */
     private $language;
+    
     private $processor = [];
     
     public function __construct(string $string, iterable $processor = [])

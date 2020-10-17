@@ -14,7 +14,9 @@ class ConfigFileProvider extends ArrayProvider
 {
     /** @var ConfigFileConverterInterface[] */
     private $converter = [];
+    
     private $dir = '';
+
     public function __construct(string $dir)
     {
         Helper::createDirIfNotExists($dir);

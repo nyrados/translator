@@ -1,13 +1,13 @@
 <?php
 
-namespace Nyrados\Translator\Cache\File;
+namespace Nyrados\Translator\Cache\Manager;
 
 use Nyrados\Translator\Helper;
-use Nyrados\Translator\Cache\Meta;
+use Nyrados\Translator\Cache\Util\Meta;
 use Nyrados\Translator\Cache\TranslationCacheInterface;
 use Nyrados\Translator\Language\Language;
 
-class FileCache implements TranslationCacheInterface
+class FileCache implements CacheManagerInterface
 {
 
     /** @var string */

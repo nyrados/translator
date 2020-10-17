@@ -1,6 +1,6 @@
 <?php
 
-namespace Nyrados\Translator\Cache;
+namespace Nyrados\Translator\Cache\Util;
 
 use Psr\SimpleCache\CacheInterface;
 

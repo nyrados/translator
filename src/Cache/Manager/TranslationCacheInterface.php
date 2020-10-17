@@ -1,12 +1,12 @@
 <?php
 
-namespace Nyrados\Translator\Cache;
+namespace Nyrados\Translator\Cache\Manager;
 
 use Nyrados\Translator\Language\Language;
+use Nyrados\Translator\Cache\Util\Meta;
 
-interface TranslationCacheInterface
+interface CacheManagerInterface
 {
-
     public function loadMeta(string $cacheName): ?Meta;
     
     public function loadSingle(string $cacheName, Language $preference): iterable;
@@ -19,5 +19,4 @@ interface TranslationCacheInterface
     public function saveSingle(string $cacheName, iterable $translations);
 
     public function saveGroup(string $groupName, iterable $translations);
-
 }

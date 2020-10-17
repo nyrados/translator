@@ -1,10 +1,9 @@
 <?php
 
-namespace Nyrados\Translator\Cache;
+namespace Nyrados\Translator\Cache\Util;
 
 use DateInterval;
 use DateTime;
-use Nyrados\Translator\Cache\RequestCache;
 
 class Meta
 {

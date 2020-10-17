@@ -3,15 +3,17 @@
 namespace Nyrados\Translator;
 
 use DateInterval;
-use Nyrados\Translator\Cache\RequestCache;
+use Nyrados\Translator\Cache\Util\RequestCache;
 use Nyrados\Translator\Processor\ProcessorContainer;
 use Psr\Container\ContainerInterface;
 
 class Config
 {
     private $config = [];
-/** @var RequestCache */
+    
+    /** @var RequestCache */
     private $requestCache;
+
     public function __construct(array $config = [])
     {
         $defaultConfig = [

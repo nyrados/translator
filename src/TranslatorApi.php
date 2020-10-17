@@ -4,7 +4,7 @@ namespace Nyrados\Translator;
 
 use InvalidArgumentException;
 use Nyrados\Translator\Cache\FileCache;
-use Nyrados\Translator\Cache\RequestCache;
+use Nyrados\Translator\Cache\Util\RequestCache;
 use Nyrados\Translator\Processor\ProcessorInterface;
 use Nyrados\Translator\Language\Language;
 use Nyrados\Translator\Provider\ProviderInterface;
@@ -20,21 +20,29 @@ class TranslatorApi
         TRANSLATION_STRING_SEPARATOR = '_',
         TRANSLATION_STRING_SEPARATE_DEPTH = 1
     ;
-/** @var ProviderInterface[] */
+
+    /** @var ProviderInterface[] */
     private $provider = [];
-/** @var Language[] */
+
+    /** @var Language[] */
     private $preferences;
-/** @var Language */
+
+    /** @var Language */
     private $fallback;
-/** @var Config */
+
+    /** @var Config */
     public $config = [];
-/** @var UndefinedStringCollector */
+    
+    /** @var UndefinedStringCollector */
     private $undefined;
-/** @var string */
+    
+    /** @var string */
     private $name = 'default';
-/** @var FileCache */
+    
+    /** @var FileCache */
     private $cache;
-/**
+    
+    /**
      * Construct a new TranslatorApi
      *
      * @param array $config Assoc array with mixed config values
@@ -102,10 +110,6 @@ class TranslatorApi
     public function setName(string $name): void
     {
         $this->name = $name;
-        if ($this->config->isCacheActive()) {
-            $this->cache = new FileCache($name, $this->config);
-            $this->cache->load($this->preferences);
-        }
     }
 
     public function getRequestCache(): RequestCache

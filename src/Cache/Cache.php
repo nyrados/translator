@@ -3,31 +3,27 @@
 namespace Nyrados\Translator\Cache;
 
 use DateInterval;
-use Nyrados\Translator\Cache\File\FileCacheSaver;
-use Nyrados\Translator\Cache\File\MetaFile;
-use Nyrados\Translator\Cache\FileCache;
-use Nyrados\Translator\Cache\RequestCache;
+use Nyrados\Translator\Cache\Util\Meta;
+use Nyrados\Translator\Cache\Manager\CacheManagerInterface;
+use Nyrados\Translator\Cache\Util\RequestCache;
 use Nyrados\Translator\Helper;
-use Nyrados\Translator\Language\Language;
-use Nyrados\Translator\Provider\ProviderInterface;
 use Nyrados\Translator\TranslatorApi;
 
 class Cache
 {
-
     /** @var TranslatorApi */
     private $translator;
 
     /** @var RequestCache */
     private $requestCache;
 
-    /** @var TranslationCacheInterface */
+    /** @var CacheManagerInterface */
     private $cache;
 
     /** @var Meta|null */
     private $loadedMeta;
 
-    public function __construct(TranslationCacheInterface $cache, TranslatorApi $translator)
+    public function __construct(CacheManagerInterface $cache, TranslatorApi $translator)
     {
         $this->cache = $cache;
         $this->translator = $translator;

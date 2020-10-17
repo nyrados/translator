@@ -7,14 +7,18 @@ use Nyrados\Translator\TranslatorApi;
 
 class TranslationSection implements Iterator
 {
-
     /** @var Translation[] */
     private $translations = [];
-/** @var TranslatorApi */
+    
+    /** @var TranslatorApi */   
     private $translator;
+    
     private $index = 0;
+    
     private $context = [];
+    
     private $strings = [];
+
     public function __construct(TranslatorApi $translator, array $data, string $language = '')
     {
         $this->translator = $translator;
