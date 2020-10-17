@@ -4,6 +4,7 @@ namespace Nyrados\Translator;
 
 use InvalidArgumentException;
 use Nyrados\Translator\Cache\FileCache;
+use Nyrados\Translator\Cache\RequestCache;
 use Nyrados\Translator\Processor\ProcessorInterface;
 use Nyrados\Translator\Language\Language;
 use Nyrados\Translator\Provider\ProviderInterface;
@@ -105,6 +106,16 @@ class TranslatorApi
             $this->cache = new FileCache($name, $this->config);
             $this->cache->load($this->preferences);
         }
+    }
+
+    public function getRequestCache(): RequestCache
+    {
+        return $this->config->getRequestCache();
+    }
+
+    public function getPreferences(): array
+    {
+        return $this->preferences;
     }
 
     public function getName(): string

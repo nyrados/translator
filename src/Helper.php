@@ -87,4 +87,20 @@ class Helper
 
         return md5($for);
     }
+
+    public static function iterableToArray(iterable $iterable): array
+    {
+        return is_array($iterable) ? $iterable : iterator_to_array($iterable);
+    }
+
+    public static function savePHPArrayToFile(string $file, array $array)
+    {
+        if (!is_dir(dirname($file))) {
+            self::createDirIfNotExists(dirname($file));
+        }
+
+        $fp = fopen($file . '.php', 'w+');
+        fwrite($fp, "<?php\nreturn " . var_export($array, true) . ';');
+        fclose($fp);
+    }
 }

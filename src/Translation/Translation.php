@@ -9,9 +9,11 @@ use Serializable;
 class Translation
 {
     private $string;
-/** @var Language  */
+    
+    /** @var Language  */
     private $language;
     private $processor = [];
+    
     public function __construct(string $string, iterable $processor = [])
     {
         $this->string = $string;
@@ -60,7 +62,6 @@ class Translation
         }
 
         return $data;
-        return json_encode($data);
     }
 
     public function __unserialize(array $data): void

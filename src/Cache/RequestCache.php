@@ -113,19 +113,19 @@ class RequestCache
      *
      * @return CacheInterface
      */
-    public function getCache(): CacheInterface
+    public function getSingleCache(): CacheInterface
     {
         return $this->single;
     }
 
-    public function getKeys(string $name = null): iterable
+    public function getKeys(string $group = null): iterable
     {
-        if ($name === null) {
+        if ($group === null) {
             return $this->singleKeys;
         }
 
-        if (isset($this->groupKeys[$name])) {
-            return $this->groupKeys[$name];
+        if (isset($this->groupKeys[$group])) {
+            return $this->groupKeys[$group];
         }
 
         return [];
