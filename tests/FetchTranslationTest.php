@@ -3,21 +3,21 @@ namespace Nyrados\Translator\Tests;
 
 use Nyrados\Translator\Language\Language;
 use Nyrados\Translator\Provider\ArrayProvider;
+use Nyrados\Translator\TranslationFetcher;
 use Nyrados\Translator\TranslatorApi;
 use PHPUnit\Framework\TestCase;
 
 class FetchTranslationTest extends TestCase
 {
 
-    /** @var TranslatorApi */
+    /** @var TranslationFetcher */
     private $translator;
 
     protected function setUp(): void
     {
-        $this->translator = new TranslatorApi();
+        $this->translator = new TranslationFetcher(null, new Language('en-en'));
         $this->translator->addProvider($provider = new ArrayProvider());
-        $this->translator->setFallback('en-en');
-        $this->translator->setPreferences(['es', 'en-us']);
+        $this->translator->setPreferences([new Language('es'), new Language('en-us')]);
 
         $provider->set('en', [
             'test1' => 'test1_en-en',
@@ -37,7 +37,7 @@ class FetchTranslationTest extends TestCase
 
     /** SINGLE */
 
-    public function testCanFetchSingleTranslation()
+    public function testCanFetchSingleTranslation(): void
     {
         $translation = $this->translator->fetchTranslations(['test1'])['test1'];
 
@@ -45,7 +45,7 @@ class FetchTranslationTest extends TestCase
         $this->assertSame((string) $translation, 'test1_es-es');
     }
 
-    public function testCanFetchNextPreference()
+    public function testCanFetchNextPreference(): void
     {
         $translation = $this->translator->fetchTranslations(['test2'])['test2'];
 
@@ -53,7 +53,7 @@ class FetchTranslationTest extends TestCase
         $this->assertSame((string) $translation, 'test2_en-us');
     }
 
-    public function testCanFetchByIgnoreRegion()
+    public function testCanFetchByIgnoreRegion(): void
     {
         $translation = $this->translator->fetchTranslations(['test3'])['test3'];
 
@@ -61,7 +61,7 @@ class FetchTranslationTest extends TestCase
         $this->assertSame((string) $translation, 'test3_en-en');
     }
 
-    public function testCanDetectInvalidLanguageString()
+    public function testCanDetectInvalidLanguageString(): void
     {
         $this->assertEmpty($this->translator->fetchTranslations(['test4']));
     }

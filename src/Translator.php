@@ -44,16 +44,14 @@ class Translator
         $this->fetcher = new TranslationFetcher($this->requestCache);
         $this->default = new Language('en');
 
-        $this->fetcher->setPreferences($this->preferences = 
-            Helper::iterableToArray($this->convertPreferences(
-                !isset($options['preferences'])
-                    ? Helper::preferencesFromAcceptLanguage()
-                    : (is_array($options['preferences'])
-                        ? $options['preferences']
-                        : ['en-en']
-                    )    
-            )
-        ));
+        $this->preferences = $this->fetcher->setPreferences(
+            !isset($options['preferences'])
+                ? Helper::preferencesFromAcceptLanguage()
+                : (is_array($options['preferences'])
+                    ? $options['preferences']
+                    : ['en-en']
+                )
+        );
     }
 
     /**
@@ -77,7 +75,7 @@ class Translator
      *
      * @return TranslationSection|string|null
      */
-    public function translate($value, array $context= [], string $language = '')
+    public function translate($value, array $context = [], string $language = '')
     {
         if (is_array($value)) {
             return $this->fetcher->multiple($value, $language);
@@ -90,41 +88,16 @@ class Translator
         throw new InvalidArgumentException();
     }
 
-    /**
-     * Sets Language Preferences
-     *
-     * @param array $preferences
-     * @param boolean $strict
-     * @return void
-     */
-   private function convertPreferences(array $preferences): iterable
-    {
-        if (empty($preferences)) {
-            throw new InvalidArgumentException('Preferences cannot be empty');
-        }
-
-        $preferences[] = $this->default->getId();
-
-        foreach (array_values(array_unique($preferences)) as $language) {
-            yield $language = new Language($language);
-            if (
-                !in_array($language->getCode(), $preferences) &&
-                !in_array($language->withRegion($language->getCode()), $preferences)
-            ) {
-                yield $language->withRegion($language->getCode());
-            }
-        }
-    }
-
 
     /** CACHING */
 
     public function enableCache(array $options = []): Cache
     {
         return $this->cache = CacheFactory::create(
-            $this->requestCache, 
-            $this->preferences, 
-            $options)
+            $this->requestCache,
+            $this->preferences,
+            $options
+        )
         ;
     }
 
@@ -143,5 +116,4 @@ class Translator
             $this->cache->save($this->cacheName);
         }
     }
-
 }

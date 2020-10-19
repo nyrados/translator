@@ -102,11 +102,29 @@ class TranslationFetcher
      *
      * @param array $preferences
      * @param boolean $strict
-     * @return void
+     * @return array
      */
-    public function setPreferences(array $preferences): void
+    public function setPreferences(array $preferences): array
     {
-        $this->preferences = $preferences;
+        if (empty($preferences)) {
+            throw new InvalidArgumentException('Preferences cannot be empty');
+        }
+
+        $this->preferences = [];
+
+        $preferences[] = $this->fallback->getId();
+
+        foreach (array_values(array_unique($preferences)) as $language) {
+            $this->preferences[] = $language = new Language($language);
+            if (
+                !in_array($language->getCode(), $preferences) &&
+                !in_array($language->withRegion($language->getCode()), $preferences)
+            ) {
+                $this->preferences[] = $language->withRegion($language->getCode());
+            }
+        }
+
+        return $this->preferences;
     }
 
     /**
@@ -132,13 +150,13 @@ class TranslationFetcher
      */
     public function single(string $value, array $context = [], string $language = ''): ?string
     {
-        $translations = $this->fetchTranslations(is_string($value) ? [$value] : $value, $language);
+        $translations = $this->fetchTranslations([$value], $language);
 
         if (empty($translations)) {
             return null;
         }
 
-        return $this->processTranslation($translations[0], $context);
+        return $this->processTranslation($translations[$value], $context);
     }
 
     /**
@@ -192,14 +210,15 @@ class TranslationFetcher
     {
         $language = new Language($language);
         
-        if(count($strings) === 1) {
-
-            foreach ($this->provider as $provider) { 
+        if (count($strings) === 1) {
+            foreach ($this->provider as $provider) {
                 $translations = array_values($provider->getTranslations($language, $strings));
+
                 if (!empty($translations)) {
+                    $translations[0]->setLanguage($language);
                     $this->requestCache->setSingle($strings[0], $translations[0]);
 
-                    return $translations;
+                    return [$strings[0] => $translations[0]];
                 }
             }
 

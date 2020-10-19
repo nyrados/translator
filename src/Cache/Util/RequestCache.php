@@ -57,7 +57,7 @@ class RequestCache
         $this->groups[$name] = $group;
     }
 
-    public function setSingle(string $key, Translation $translation) 
+    public function setSingle(string $key, Translation $translation)
     {
         if (!in_array($key, $this->singleKeys)) {
             $this->singleKeys[] = $key;

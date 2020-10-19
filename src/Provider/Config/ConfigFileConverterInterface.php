@@ -16,6 +16,4 @@ interface ConfigFileConverterInterface
      * @return array
      */
     public function convert(string $file): array;
-    
-    public function saveMissing(string $file, UndefinedStringCollector $strings): void;
 }

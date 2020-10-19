@@ -28,7 +28,7 @@ class Language
             $this->code = $output['code'];
             $this->region  = isset($output['region']) ? $output['region'] : $output['code'];
         } else {
-            throw new InvalidArgumentException("Language must be an instance of '" . LanguageInterface::class . "' or a string");
+            throw new InvalidArgumentException("Language must be an instance of '" . self::class . "' or a string");
         }
     }
 

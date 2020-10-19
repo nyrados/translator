@@ -32,7 +32,7 @@ class Cache
 
     private $preferences;
 
-    public function __construct(RequestCache $cache, array $preferences) 
+    public function __construct(RequestCache $cache, array $preferences)
     {
         $this->cache = new FileCache();
         $this->requestCache = $cache;
@@ -45,7 +45,7 @@ class Cache
         $this->cache = $manager;
     }
 
-    public function setExpires(DateInterval $expires) 
+    public function setExpires(DateInterval $expires)
     {
         $this->expires = $expires;
     }
@@ -70,7 +70,7 @@ class Cache
     private function loadGroups(): void
     {
         foreach ($this->loadedMeta->getGroups() as $groupName) {
-            foreach($this->preferences as $preference) {
+            foreach ($this->preferences as $preference) {
                 $loaded = $this->cache->loadGroup($groupName, $preference);
 
                 if (!empty($loaded)) {
@@ -90,8 +90,7 @@ class Cache
         }
         
         foreach ($this->preferences as $preference) {
-            foreach($this->cache->loadSingle($cacheName, $preference) as $key => $translation) {
-
+            foreach ($this->cache->loadSingle($cacheName, $preference) as $key => $translation) {
                 //Skip if key is already in requestCache
                 if ($this->requestCache->has([$key])) {
                     continue;
@@ -118,20 +117,21 @@ class Cache
 
         //Save new meta, if no meta is loaded or if meta checksum is different
         if (
-            !$this->loadedMeta instanceof Meta || 
+            !$this->loadedMeta instanceof Meta ||
             !$this->loadedMeta->containsSame($this->requestCache->getChecksum())
         ) {
             $this->cache->saveMeta($name, Meta::fromRequestCache(
-                $this->requestCache, 
-                new DateInterval('PT1H')
+                $this->requestCache,
+                $this->expires
             ));
 
         //If meta checksum equals stop saving
-        } else if ($this->loadedMeta->containsSame($this->requestCache->getChecksum())) {   
+        } elseif ($this->loadedMeta->containsSame($this->requestCache->getChecksum())) {
             return;
         }
 
-        $this->cache->saveSingle($name, 
+        $this->cache->saveSingle(
+            $name,
             $this->requestCache->getSingleCache()->getMultiple(
                 $this->requestCache->getKeys()
             )

@@ -11,7 +11,7 @@ class TranslationSection implements Iterator
     /** @var Translation[] */
     private $translations = [];
     
-    /** @var TranslatorApi */   
+    /** @var TranslatorApi */
     private $translator;
     
     private $index = 0;
@@ -82,11 +82,11 @@ class TranslationSection implements Iterator
                 $this->translator->getUndefinedStrings()->set($this->strings[$this->index], $context);
             }
 
-            return $this->valid() 
+            return $this->valid()
                 ? $this->translator->processTranslation(
-                    $this->translations[$this->index], 
-                    array_merge($this->context[$this->index], $context
-                )) : null;
+                    $this->translations[$this->index],
+                    array_merge($this->context[$this->index], $context)
+                ) : null;
         };
     }
 }

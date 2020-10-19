@@ -30,7 +30,7 @@ class ArrayProvider implements ProviderInterface
         return $rs;
     }
 
-    public function set(string $language, array $data)
+    public function set(string $language, array $data): void
     {
         foreach ($data as $string => $translation) {
             if ($translation != null) {

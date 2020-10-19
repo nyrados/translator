@@ -19,7 +19,7 @@ class FileCache implements CacheManagerInterface
     }
 
     public function loadMeta(string $cacheName): ?Meta
-    {   
+    {
         $file = $this->dir . '/' . $cacheName . '/meta.php';
         if (file_exists($file)) {
             return Meta::fromArray(require $file);
@@ -71,7 +71,7 @@ class FileCache implements CacheManagerInterface
         $language = array_values($translations)[0]->getLanguage()->getId();
 
         Helper::savePHPArrayToFile(
-            $this->dir . '/g/' . $groupName . '/' . $language, 
+            $this->dir . '/g/' . $groupName . '/' . $language,
             array_map(fn($translation) => serialize($translation), $translations)
         );
     }
@@ -86,7 +86,6 @@ class FileCache implements CacheManagerInterface
                 array_map(fn($translation) => serialize($translation), $translations)
             );
         }
-
     }
 
     /**

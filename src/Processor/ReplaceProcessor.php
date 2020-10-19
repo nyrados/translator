@@ -9,11 +9,11 @@ class ReplaceProcessor implements ProcessorInterface
 {
     /**
      * Replaces all values from context.
-     * 
+     *
      * Example:
-     *  
+     *
      *  process("Hello {name}!", ["name" => "John"]);
-     *  
+     *
      *  will produce: Hello John!
      *
      * @param string $translation

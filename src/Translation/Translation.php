@@ -4,9 +4,8 @@ namespace Nyrados\Translator\Translation;
 
 use InvalidArgumentException;
 use Nyrados\Translator\Language\Language;
-use Serializable;
 
-class Translation
+final class Translation
 {
     private $string;
     

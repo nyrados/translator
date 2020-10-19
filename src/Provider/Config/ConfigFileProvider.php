@@ -37,7 +37,6 @@ class ConfigFileProvider extends ArrayProvider
         }
 
         foreach (scandir($this->dir) as $fileName) {
-
             $file = $this->dir . '/' . $fileName;
             if (is_dir($file)) {
                 continue;
