@@ -13,9 +13,9 @@ class FileCache implements CacheManagerInterface
     /** @var string */
     private $dir;
 
-    public function __construct(string $dir)
+    public function __construct(string $dir = null)
     {
-        $this->dir = $dir;
+        $this->dir = $dir ?? sys_get_temp_dir() . '/nyrados-translator/' . md5(__DIR__);
     }
 
     public function loadMeta(string $cacheName): ?Meta

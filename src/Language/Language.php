@@ -3,7 +3,7 @@
 namespace Nyrados\Translator\Language;
 
 use InvalidArgumentException;
-use Nyrados\Translator\TranslatorApi;
+use Nyrados\Translator\Translator;
 
 class Language
 {
@@ -21,7 +21,7 @@ class Language
             $this->code = $language->getCode();
         } elseif (is_string($language) || is_object($language) && method_exists($language, '__toSting')) {
             $string = strtolower((string) $language);
-            if (!preg_match(TranslatorApi::PARSER, $string, $output)) {
+            if (!preg_match(Translator::PARSER, $string, $output)) {
                 throw new InvalidArgumentException(sprintf("Invalid Language String! Unable to parse '%s'", $language));
             }
 

@@ -5,14 +5,15 @@ namespace Nyrados\Translator\Cache;
 use DateInterval;
 use Nyrados\Translator\Cache\Util\Meta;
 use Nyrados\Translator\Cache\Manager\CacheManagerInterface;
+use Nyrados\Translator\Cache\Manager\FileCache;
 use Nyrados\Translator\Cache\Util\RequestCache;
 use Nyrados\Translator\Helper;
 use Nyrados\Translator\TranslatorApi;
 
 class Cache
 {
-    /** @var TranslatorApi */
-    private $translator;
+
+    public const DEFAULT_INTERVAL = 'PT1H';
 
     /** @var RequestCache */
     private $requestCache;
@@ -23,15 +24,35 @@ class Cache
     /** @var Meta|null */
     private $loadedMeta;
 
-    public function __construct(CacheManagerInterface $cache, TranslatorApi $translator)
+    /** @var string */
+    private $name;
+
+    /** @var DateInterval */
+    private $expires;
+
+    private $preferences;
+
+    public function __construct(RequestCache $cache, array $preferences) 
     {
-        $this->cache = $cache;
-        $this->translator = $translator;
-        $this->requestCache = $translator->getRequestCache();
+        $this->cache = new FileCache();
+        $this->requestCache = $cache;
+        $this->preferences = $preferences;
+        $this->expires = new DateInterval(self::DEFAULT_INTERVAL);
+    }
+
+    public function setManager(CacheManagerInterface $manager)
+    {
+        $this->cache = $manager;
+    }
+
+    public function setExpires(DateInterval $expires) 
+    {
+        $this->expires = $expires;
     }
 
     public function load(string $cacheName): void
     {
+        $this->name = $cacheName;
         $cache = $this->cache;
         $meta = $cache->loadMeta($cacheName);
 
@@ -49,7 +70,7 @@ class Cache
     private function loadGroups(): void
     {
         foreach ($this->loadedMeta->getGroups() as $groupName) {
-            foreach($this->translator->getPreferences() as $preference) {
+            foreach($this->preferences as $preference) {
                 $loaded = $this->cache->loadGroup($groupName, $preference);
 
                 if (!empty($loaded)) {
@@ -68,7 +89,7 @@ class Cache
             return;
         }
         
-        foreach ($this->translator->getPreferences() as $preference) {
+        foreach ($this->preferences as $preference) {
             foreach($this->cache->loadSingle($cacheName, $preference) as $key => $translation) {
 
                 //Skip if key is already in requestCache
@@ -91,8 +112,9 @@ class Cache
         }
     }
 
-    public function save(string $name)
+    public function save(string $name = null)
     {
+        $name = $name ?? $this->name;
 
         //Save new meta, if no meta is loaded or if meta checksum is different
         if (

@@ -51,10 +51,8 @@ class Helper
 
             return (isset($b[1]) ? $b[1] : 1) <=> (isset($a[1]) ? $a[1] : 1);
         });
-        return array_map(function (array $data) {
- 
-            return $data[0];
-        }, $preferences);
+        
+        return array_map(fn (array $data) => $data[0], $preferences);
     }
 
     /**

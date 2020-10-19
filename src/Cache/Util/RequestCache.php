@@ -45,6 +45,27 @@ class RequestCache
         return (count($keys) === 1 && $this->single->has($keys[0])) || isset($this->groups[Helper::getChecksum($keys)]);
     }
 
+    public function setGroup(array $translations)
+    {
+        $group = clone $this->source;
+        $name = Helper::getChecksum(array_keys($translations));
+        foreach ($translations as $key => $translation) {
+            $this->groupKeys[$name][] = $key;
+            $group->set($key, $translation);
+        }
+
+        $this->groups[$name] = $group;
+    }
+
+    public function setSingle(string $key, Translation $translation) 
+    {
+        if (!in_array($key, $this->singleKeys)) {
+            $this->singleKeys[] = $key;
+        }
+
+        $this->single->set($key, $translation);
+    }
+
     /**
      * Sets Translations into Cache
      *
@@ -53,27 +74,7 @@ class RequestCache
      */
     public function set(array $translations)
     {
-        if (count($translations) === 1) {
-            foreach ($translations as $key => $translation) {
-                if (!in_array($key, $this->singleKeys)) {
-                    $this->singleKeys[] = $key;
-                }
-                
-                $this->single->set($key, $translation);
-            }
-
-            return;
-        }
-
-        $group = clone $this->source;
-        $name = Helper::getChecksum(array_keys($translations));
-        foreach ($translations as $key => $translation) {
-            $this->groupKeys[$name][] = $key;
-            $group->set($key, $translation);
-        }
-
-
-        $this->groups[$name] = $group;
+        var_dump('ne');
     }
 
     /**
