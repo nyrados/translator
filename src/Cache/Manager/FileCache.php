@@ -9,7 +9,6 @@ use Nyrados\Translator\Language\Language;
 
 class FileCache implements CacheManagerInterface
 {
-
     /** @var string */
     private $dir;
 
@@ -111,5 +110,26 @@ class FileCache implements CacheManagerInterface
         }
 
         return $sort;
+    }
+
+    public function clear(): void
+    {
+        $this->deleteDir($this->dir);
+    }
+
+    private function deleteDir(string $dir)
+    {
+        foreach (scandir($dir) as $file) {
+            if (in_array($file, ['.', '..'], true)) {
+                continue;
+            }
+
+            if (is_dir($dir . '/' . $file)) {
+                $this->deleteDir($dir);
+                rmdir($dir);
+            } else {
+                unlink($dir);
+            }
+        }
     }
 }

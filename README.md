@@ -26,7 +26,7 @@ $provider->set('de', [
     'article_header' => 'Eine aussagekräftige Überschrift',
 ]);
 
-$t = new TranslatorApi();
+$t = new Translator();
 $t->addProvider($provider);
 $t->setPreferences(['de-at', 'en-us']);
 ```

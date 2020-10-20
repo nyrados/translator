@@ -19,4 +19,7 @@ interface CacheManagerInterface
     public function saveSingle(string $cacheName, iterable $translations);
 
     public function saveGroup(string $groupName, iterable $translations);
+
+    
+    public function clear(): void;
 }

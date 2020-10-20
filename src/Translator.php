@@ -5,6 +5,7 @@ namespace Nyrados\Translator;
 use InvalidArgumentException;
 use Nyrados\Translator\Cache\Cache;
 use Nyrados\Translator\Cache\CacheFactory;
+use Nyrados\Translator\Cache\CacheManagerAdapter;
 use Nyrados\Translator\Cache\Manager\FileCache;
 use Nyrados\Translator\Cache\Util\RequestCache;
 use Nyrados\Translator\Language\Language;
@@ -36,13 +37,16 @@ class Translator
 
     private $cacheName = null;
 
-    private $default;
-
+    /**
+     * Construct a new TranslatorApi
+     *
+     * @param array $config Assoc array with mixed config values
+     *
+     */
     public function __construct(array $options = [])
     {
         $this->requestCache = new RequestCache();
         $this->fetcher = new TranslationFetcher($this->requestCache);
-        $this->default = new Language('en');
 
         $this->preferences = $this->fetcher->setPreferences(
             !isset($options['preferences'])
@@ -91,7 +95,7 @@ class Translator
 
     /** CACHING */
 
-    public function enableCache(array $options = []): Cache
+    public function enableCache(array $options = []): CacheManagerAdapter
     {
         return $this->cache = CacheFactory::create(
             $this->requestCache,
@@ -102,9 +106,8 @@ class Translator
     }
 
     public function loadCache(string $name): void
-    {
-        
-        if ($this->cache instanceof Cache) {
+    {   
+        if ($this->cache instanceof CacheManagerAdapter) {
             $this->cacheName = $name;
             $this->cache->load($name);
         }

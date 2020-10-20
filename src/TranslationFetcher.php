@@ -40,39 +40,6 @@ class TranslationFetcher
     /** @var RequestCache */
     private $requestCache;
     
-    /**
-     * Construct a new TranslatorApi
-     *
-     * @param array $config Assoc array with mixed config values
-     *
-     * ## Aviable Options:
-     *
-     * ### Caching:
-     *
-     * The cache saves the translation results from the translation providers as file.
-     * So the translator has not to look up each time which translation provider is required
-     * and which is the suitable language
-     *
-     * * cache (bool):
-     *      Activate or deactivate caching.
-     *      Its not recommended for an dev environment.
-     *      Default: false
-     *
-     * * cache_dir (string):
-     *      An absolute path to a cache directory.
-     *      If the directory does not exists it will be created.
-     *      Default: subfolder with name translator-md5(__DIR__) in sys_get_temp_dir()
-     *
-     * * cache_interval (DateInterval):
-     *      A Dateinterval that describes how long the cache is stored.
-     *      Default: 1 hour
-     *
-     * ### Other:
-     *
-     * * processor_container (Psr\Container\ContainerInterface)
-     *      A container that provides values of Nyrados\Translator\Processor\ProcessorInterface
-     *      Default: Nyrados\Translator\Processor\ProcessorContainer
-     */
     public function __construct(RequestCache $requestCache = null, Language $fallback = null)
     {
         $this->requestCache = $requestCache ?? new RequestCache();

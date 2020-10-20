@@ -8,9 +8,8 @@ use Nyrados\Translator\Cache\Manager\CacheManagerInterface;
 use Nyrados\Translator\Cache\Manager\FileCache;
 use Nyrados\Translator\Cache\Util\RequestCache;
 use Nyrados\Translator\Helper;
-use Nyrados\Translator\TranslatorApi;
 
-class Cache
+class CacheManagerAdapter
 {
 
     public const DEFAULT_INTERVAL = 'PT1H';

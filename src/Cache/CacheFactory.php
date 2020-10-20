@@ -25,7 +25,7 @@ class CacheFactory
         $options = array_merge($default, $options);
         $manager = self::getManager($options);
 
-        $cache = new Cache($cache, $preferences);
+        $cache = new CacheManagerAdapter($cache, $preferences);
         $cache->setExpires($default['expires']);
         $cache->setManager($manager);
 
