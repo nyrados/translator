@@ -1,7 +1,7 @@
 {
     "name": "nyrados/translator",
     "description": "Translation Api to localize webpages",
-    "version": "0.2",
+    "version": "0.2.1",
     "type": "libary",
     "require": {
         "php": "^7.2",

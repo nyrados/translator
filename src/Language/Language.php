@@ -9,6 +9,7 @@ class Language
 {
     protected $code;
     protected $region;
+
     public function __construct($language)
     {
         $this->parseLanguage($language);
@@ -56,6 +57,10 @@ class Language
 
     public function getId()
     {
+        if ($this->isRegionSame()) {
+            return $this->getCode();
+        }
+
         return $this->getCode() . '-' . $this->getRegion();
     }
 

@@ -31,7 +31,7 @@ class Helper
             return self::parseAcceptLanguage($_SERVER['HTTP_ACCEPT_LANGUAGE']);
         }
 
-        return ['en-en'];
+        return ['en'];
     }
 
     /**

@@ -48,14 +48,18 @@ class Translator
         $this->requestCache = new RequestCache();
         $this->fetcher = new TranslationFetcher($this->requestCache);
 
-        $this->preferences = $this->fetcher->setPreferences(
+        $this->setPreferences(
             !isset($options['preferences'])
                 ? Helper::preferencesFromAcceptLanguage()
                 : (is_array($options['preferences'])
                     ? $options['preferences']
-                    : ['en-en']
-                )
-        );
+                    : ['en']
+        ));
+    }
+
+    public function setPreferences(array $value): void
+    {
+        $this->preferences = $this->fetcher->setPreferences($value);
     }
 
     /**
@@ -101,8 +105,7 @@ class Translator
             $this->requestCache,
             $this->preferences,
             $options
-        )
-        ;
+        );
     }
 
     public function loadCache(string $name): void
